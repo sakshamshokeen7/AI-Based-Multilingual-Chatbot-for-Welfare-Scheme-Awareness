@@ -166,7 +166,11 @@ async def process_chat(request: Request, is_sms: bool):
         print(f"Error processing webhook: {e}")
         reply_text = "The system is currently busy or we hit an API rate limit. Please wait 30 seconds and try again."
 
-    print(f"Sending reply to {sender}: {reply_text}")
+    try:
+        safe_reply = reply_text.encode('ascii', 'replace').decode('ascii')
+        print(f"Sending reply to {sender}: {safe_reply[:200]}...")
+    except Exception:
+        pass
 
     # Return TwiML response
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
