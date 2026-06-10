@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import Response, JSONResponse
 from rag_engine import get_retriever
 from langchain_google_genai import ChatGoogleGenerativeAI
+from translation import translator
 import os
 
 app = FastAPI(title="Welfare Scheme Chatbot API", version="1.0.0")
@@ -25,30 +26,32 @@ async def twilio_webhook(request: Request):
 
     print(f"Received message from {sender}: {incoming_msg}")
 
-    # RAG PIPELINE
+    # Step 1: Detect and Translate incoming message using Bhashini
+    user_lang = translator.detect_language(incoming_msg)
+    english_query = translator.translate_to_english(incoming_msg, user_lang)
+
+    # Step 2: Retrieve relevant documents using FAISS
     retriever = get_retriever()
     if not retriever:
         reply_text = "I'm sorry, my knowledge base is currently offline."
     else:
-        # Retrieve the top relevant schemes based on the user's message
-        docs = retriever.invoke(incoming_msg)
-        context = "\n\n".join([d.page_content for d in docs])
-        
-        # Build the strict prompt
+        docs = retriever.invoke(english_query)
+        context = "\n\n".join([doc.page_content for doc in docs])
+
+        lang_instruction = ""
+        if not translator.is_active:
+            lang_instruction = f"\nIMPORTANT: You MUST reply entirely in the language the user spoke in. If they used code-mixing (like Hinglish), reply in the same natural way."
+
         prompt = f"""
-        You are an AI assistant helping rural Indian citizens discover government welfare schemes.
+        You are a helpful welfare scheme assistant for the Indian government.
+        Use the following retrieved scheme data to answer the user's question accurately.
+        If the answer is not in the data, state that you do not have that information.
+        {lang_instruction}
         
-        User's Message: "{incoming_msg}"
-        
-        Relevant Schemes retrieved from the database:
+        Context Data:
         {context}
         
-        Instructions:
-        1. Answer the user's question clearly based ONLY on the provided schemes.
-        2. If they seem eligible for a scheme, list the documents they need.
-        3. Do NOT make up schemes or requirements. If the answer isn't in the context, politely say you don't know.
-        4. Respond in the same language the user wrote in (handle code-mixing gracefully).
-        5. Keep it concise (WhatsApp friendly).
+        User Query: {english_query}
         """
         
         # Generate the response using Gemini
@@ -59,6 +62,9 @@ async def twilio_webhook(request: Request):
             reply_text = "".join([block.get("text", "") for block in ai_msg.content if isinstance(block, dict) and "text" in block])
         else:
             reply_text = str(ai_msg.content)
+
+        # Step 4: Translate the response back to user's language using Bhashini
+        reply_text = translator.translate_from_english(reply_text, user_lang)
 
     print(f"Sending reply to {sender}: {reply_text}")
 
