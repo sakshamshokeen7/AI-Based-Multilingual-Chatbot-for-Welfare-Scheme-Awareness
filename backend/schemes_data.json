@@ -1,0 +1,115 @@
+[
+  {
+    "scheme_id": "SCH001",
+    "name": "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
+    "description": "An income support scheme providing ₹6,000 per year in three equal installments to all landholding farmer families.",
+    "eligibility": "Small and marginal farmers holding cultivable land up to 2 hectares. Excludes institutional landholders, professionals (doctors, engineers), and taxpayers.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Bank Account Details (linked to Aadhaar)",
+      "Land Holding Papers (Khasra/Khatauni)"
+    ]
+  },
+  {
+    "scheme_id": "SCH002",
+    "name": "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (AB-PMJAY)",
+    "description": "Provides a health insurance cover of up to ₹5 Lakhs per family per year for secondary and tertiary care hospitalization.",
+    "eligibility": "Targeted at poor, deprived rural families and identified occupational categories of urban workers based on SECC 2011 data.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Ration Card",
+      "PMJAY Golden Card / e-Card (if issued)"
+    ]
+  },
+  {
+    "scheme_id": "SCH003",
+    "name": "Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA)",
+    "description": "Guarantees 100 days of wage employment in a financial year to a rural household whose adult members volunteer to do unskilled manual work.",
+    "eligibility": "Must be a citizen of India, 18 years of age or older, and part of a rural household willing to do unskilled manual labor.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Job Card application form",
+      "Passport size photographs",
+      "Bank/Post Office account details"
+    ]
+  },
+  {
+    "scheme_id": "SCH004",
+    "name": "Pradhan Mantri Ujjwala Yojana (PMUY)",
+    "description": "Provides LPG connections to women from Below Poverty Line (BPL) households.",
+    "eligibility": "Applicant must be a woman above 18 years of age. The household should belong to the BPL category and must not already have an LPG connection.",
+    "documents_required": [
+      "Aadhaar Card",
+      "BPL Ration Card",
+      "Address Proof",
+      "Bank Account Details"
+    ]
+  },
+  {
+    "scheme_id": "SCH005",
+    "name": "Pradhan Mantri Awas Yojana - Gramin (PMAY-G)",
+    "description": "Aims to provide a pucca house with basic amenities to all houseless households and those living in kutcha and dilapidated houses in rural areas.",
+    "eligibility": "Houseless households or those with houses having zero, one, or two rooms with a kutcha wall and roof as per SECC data.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Job Card (MGNREGA)",
+      "Bank Account Details",
+      "Swachh Bharat Mission (SBM) number"
+    ]
+  },
+  {
+    "scheme_id": "SCH006",
+    "name": "Sukanya Samriddhi Yojana (SSY)",
+    "description": "A small deposit scheme for the girl child launched as part of the 'Beti Bachao Beti Padhao' campaign.",
+    "eligibility": "Parents or legal guardians can open an account in the name of a girl child below the age of 10 years.",
+    "documents_required": [
+      "Birth Certificate of the girl child",
+      "Aadhaar Card of the parent/guardian",
+      "Address Proof of the parent/guardian"
+    ]
+  },
+  {
+    "scheme_id": "SCH007",
+    "name": "Pradhan Mantri Jan Dhan Yojana (PMJDY)",
+    "description": "A national mission for financial inclusion to ensure access to financial services, namely, basic savings & deposit accounts, remittance, credit, insurance, and pension.",
+    "eligibility": "Any Indian citizen aged 10 years and above who does not already have a bank account.",
+    "documents_required": [
+      "Aadhaar Card (serves as identity and address proof)",
+      "If Aadhaar is not available: Voter ID, Driving License, PAN card, or NREGA card"
+    ]
+  },
+  {
+    "scheme_id": "SCH008",
+    "name": "Atal Pension Yojana (APY)",
+    "description": "A pension scheme focused mainly on the unorganized sector to provide a guaranteed minimum pension of ₹1,000 to ₹5,000 per month after age 60.",
+    "eligibility": "Indian citizens between 18 and 40 years of age with a valid bank account.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Savings Bank Account Details",
+      "Mobile Number"
+    ]
+  },
+  {
+    "scheme_id": "SCH009",
+    "name": "e-Shram Portal Registration",
+    "description": "Creation of a National Database of Unorganized Workers (NDUW) to deliver social security benefits to unorganized workers.",
+    "eligibility": "Any unorganized worker between 16 and 59 years of age. Must not be a member of EPFO/ESIC or a regular government employee.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Active Mobile Number (linked to Aadhaar)",
+      "Bank Account Details"
+    ]
+  },
+  {
+    "scheme_id": "SCH010",
+    "name": "National Social Assistance Programme (NSAP - Old Age Pension)",
+    "description": "Provides financial assistance to the elderly, widows, and persons with disabilities from below poverty line households.",
+    "eligibility": "Applicant must be a destitute and belong to a BPL household. For old age pension, age must be 60 years or above.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Age Proof (Birth certificate / Voter ID)",
+      "BPL Ration Card",
+      "Bank Account Details"
+    ]
+  }
+]
