@@ -111,5 +111,42 @@
       "BPL Ration Card",
       "Bank Account Details"
     ]
+  },
+  {
+    "scheme_id": "SCH011",
+    "name": "PM Street Vendor's AtmaNirbhar Nidhi (PM SVANidhi)",
+    "description": "A special micro-credit facility for street vendors to access affordable working capital loans to resume their livelihoods.",
+    "eligibility": "All street vendors engaged in vending in urban areas as on or before March 24, 2020.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Voter ID Card",
+      "Certificate of Vending / Identity Card issued by Urban Local Bodies (ULBs)",
+      "Bank Account Details"
+    ]
+  },
+  {
+    "scheme_id": "SCH012",
+    "name": "Stand-Up India Scheme",
+    "description": "Facilitates bank loans between 10 lakh and 1 Crore to at least one Scheduled Caste (SC) or Scheduled Tribe (ST) borrower and at least one woman borrower per bank branch for setting up a greenfield enterprise.",
+    "eligibility": "SC/ST and/or woman entrepreneurs, above 18 years of age. The enterprise must be in manufacturing, services, or the trading sector.",
+    "documents_required": [
+      "Aadhaar Card",
+      "PAN Card",
+      "Caste Certificate (if applicable)",
+      "Project Report",
+      "Bank Account Details"
+    ]
+  },
+  {
+    "scheme_id": "SCH013",
+    "name": "PM Mudra Yojana (PMMY)",
+    "description": "Provides loans up to ₹10 Lakhs to non-corporate, non-farm small/micro enterprises.",
+    "eligibility": "Any Indian citizen who has a business plan for a non-farm sector income generating activity such as manufacturing, processing, trading or service sector.",
+    "documents_required": [
+      "Aadhaar Card",
+      "Identity Proof (Voter ID, Driving License)",
+      "Address Proof",
+      "Business registration certificate (if available)"
+    ]
   }
 ]

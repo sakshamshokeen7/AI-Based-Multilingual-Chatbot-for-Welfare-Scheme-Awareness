@@ -13,6 +13,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", temperature=0.3)
 @app.get("/")
 async def root():
     return {"message": "Welfare Scheme Chatbot Backend is running."}
+    
 
 @app.post("/webhook")
 async def twilio_webhook(request: Request):
