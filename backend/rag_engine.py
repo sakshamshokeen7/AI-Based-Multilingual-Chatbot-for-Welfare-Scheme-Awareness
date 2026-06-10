@@ -42,9 +42,9 @@ def initialize_vector_store():
     if not api_key:
         raise ValueError("GEMINI_API_KEY not found in environment variables. Please check your .env file.")
         
-    # We use Gemini's embedding model to convert text to vectors
+    # We use Gemini's latest embedding model to convert text to vectors
     embeddings = GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001", 
+        model="models/gemini-embedding-2", 
         google_api_key=api_key
     )
     
