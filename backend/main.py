@@ -53,7 +53,12 @@ async def twilio_webhook(request: Request):
         
         # Generate the response using Gemini
         ai_msg = llm.invoke(prompt)
-        reply_text = ai_msg.content
+        
+        # LangChain sometimes returns a list of blocks for newer Gemini models
+        if isinstance(ai_msg.content, list):
+            reply_text = "".join([block.get("text", "") for block in ai_msg.content if isinstance(block, dict) and "text" in block])
+        else:
+            reply_text = str(ai_msg.content)
 
     print(f"Sending reply to {sender}: {reply_text}")
 
