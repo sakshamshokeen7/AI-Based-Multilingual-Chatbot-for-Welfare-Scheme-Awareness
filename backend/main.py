@@ -8,7 +8,7 @@ import os
 app = FastAPI(title="Welfare Scheme Chatbot API", version="1.0.0")
 
 # Initialize the Gemini Chat model for conversational reasoning
-llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3)
+llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", temperature=0.3)
 
 @app.get("/")
 async def root():
@@ -71,7 +71,7 @@ async def twilio_webhook(request: Request):
     # Return valid TwiML (XML) response required by Twilio WhatsApp
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
     <Response>
-        <Message>{reply_text}</Message>
+        <Message><![CDATA[{reply_text}]]></Message>
     </Response>"""
     
     return Response(content=twiml, media_type="application/xml")

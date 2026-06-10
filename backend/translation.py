@@ -8,7 +8,7 @@ class BhashiniTranslator:
     the Gemini LLM to handle translation natively, ensuring zero downtime.
     """
     def __init__(self):
-        self.api_key = os.getenv("BHASHINI_API_KEY")
+        self.api_key = os.getenv("BHASHINI_API_KEY", "")
         self.is_active = bool(self.api_key and self.api_key.strip())
 
     def detect_language(self, text: str) -> str:
