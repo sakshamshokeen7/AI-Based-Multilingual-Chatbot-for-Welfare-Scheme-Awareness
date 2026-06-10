@@ -43,7 +43,7 @@ def get_session(sender: str):
         }
     return USER_SESSIONS[sender]
 
-def handle_retrieval(profile_summary: str, user_query: str, user_lang: str) -> str:
+def handle_retrieval(profile_summary: str, user_query: str, user_lang: str, is_sms: bool = False) -> str:
     """Uses FAISS and Gemini to recommend schemes based on the gathered profile."""
     retriever = get_retriever()
     if not retriever:
@@ -57,6 +57,10 @@ def handle_retrieval(profile_summary: str, user_query: str, user_lang: str) -> s
     if not translator.is_active:
         lang_instruction = f"\nIMPORTANT: You MUST reply entirely in the language the user spoke in. If they used code-mixing (like Hinglish), reply in the same natural way."
 
+    sms_instruction = ""
+    if is_sms:
+        sms_instruction = "\nCRITICAL: The user is on a basic SMS keypad phone. Your response MUST be extremely punchy, highly concise, and under 300 characters to prevent expensive multi-part SMS splitting. Keep checklists very brief."
+
     prompt = f"""
     You are a helpful welfare scheme assistant for the Indian government.
     The user's confirmed demographic profile is: {profile_summary}
@@ -68,6 +72,7 @@ def handle_retrieval(profile_summary: str, user_query: str, user_lang: str) -> s
     3. Include a clear 'Document Checklist' so they know what paperwork to prepare.
     If the answer is not in the data, state that you do not have that information.
     {lang_instruction}
+    {sms_instruction}
     
     Context Data:
     {context}
@@ -82,8 +87,7 @@ def handle_retrieval(profile_summary: str, user_query: str, user_lang: str) -> s
 async def root():
     return {"message": "Welfare Scheme Chatbot Backend is running."}
 
-@app.post("/webhook")
-async def twilio_webhook(request: Request):
+async def process_chat(request: Request, is_sms: bool):
     form_data = await request.form()
     incoming_msg = form_data.get('Body', '').strip()
     sender = form_data.get('From', '')
@@ -91,7 +95,6 @@ async def twilio_webhook(request: Request):
     print(f"Received message from {sender}: {incoming_msg}")
 
     try:
-
         session = get_session(sender)
 
         # Handle user reset explicitly
@@ -106,13 +109,22 @@ async def twilio_webhook(request: Request):
         session["history"].append(HumanMessage(content=english_query))
 
         reply_text = ""
-
         is_retrieval = False
 
         if not session["profile_complete"]:
             # Interview Mode
-            ai_msg = llm.invoke(session["history"])
-            reply_english = str(ai_msg.content).strip()
+            if is_sms:
+                sms_instruction = HumanMessage(content="[SYSTEM: The user is on standard SMS. Ask the question in under 100 characters.]")
+                session["history"].append(sms_instruction)
+                ai_msg = llm.invoke(session["history"])
+                session["history"].pop()
+            else:
+                ai_msg = llm.invoke(session["history"])
+                
+            if isinstance(ai_msg.content, list):
+                reply_english = "".join([block.get("text", "") for block in ai_msg.content if isinstance(block, dict) and "text" in block]).strip()
+            else:
+                reply_english = str(ai_msg.content).strip()
             
             # Check if the LLM has gathered all 5 pieces of information
             if reply_english.startswith("PROFILE_COMPLETE:"):
@@ -130,7 +142,7 @@ async def twilio_webhook(request: Request):
             reply_text = reply_english
         else:
             # Post-Profile Q&A
-            reply_english = handle_retrieval(session["profile_summary"], english_query, user_lang)
+            reply_english = handle_retrieval(session["profile_summary"], english_query, user_lang, is_sms)
             session["history"].append(AIMessage(content=reply_english))
             reply_text = reply_english
             is_retrieval = True
@@ -138,17 +150,18 @@ async def twilio_webhook(request: Request):
         # Translate response
         reply_text = translator.translate_from_english(reply_text, user_lang)
 
-        # Append download link if this is a scheme retrieval
+        # Append download link if this is a scheme retrieval (and NOT sms)
         if is_retrieval:
             session["last_translated_checklist"] = reply_text
-            clean_phone = sender.replace("whatsapp:", "").replace("+", "")
-            
-            host = request.headers.get("host")
-            base_url = f"https://{host}" if host else str(request.base_url).rstrip('/')
-            download_url = f"{base_url}/download/{clean_phone}"
-            
-            link_text = translator.translate_from_english("\n\n📄 Download this checklist: ", user_lang)
-            reply_text += f"{link_text}{download_url}"
+            if not is_sms:
+                clean_phone = sender.replace("whatsapp:", "").replace("+", "")
+                
+                host = request.headers.get("host")
+                base_url = f"https://{host}" if host else str(request.base_url).rstrip('/')
+                download_url = f"{base_url}/download/{clean_phone}"
+                
+                link_text = translator.translate_from_english("\n\n📄 Download this checklist: ", user_lang)
+                reply_text += f"{link_text}{download_url}"
     except Exception as e:
         print(f"Error processing webhook: {e}")
         reply_text = "The system is currently busy or we hit an API rate limit. Please wait 30 seconds and try again."
@@ -162,6 +175,16 @@ async def twilio_webhook(request: Request):
     </Response>"""
     
     return Response(content=twiml, media_type="application/xml")
+
+@app.post("/webhook")
+async def twilio_webhook(request: Request):
+    """WhatsApp Endpoint (Rich Text & Links)"""
+    return await process_chat(request, is_sms=False)
+
+@app.post("/sms")
+async def twilio_sms(request: Request):
+    """Standard SMS Endpoint (Concise & No Links)"""
+    return await process_chat(request, is_sms=True)
 
 @app.get("/download/{phone_number}", response_class=HTMLResponse)
 async def download_checklist(phone_number: str):
