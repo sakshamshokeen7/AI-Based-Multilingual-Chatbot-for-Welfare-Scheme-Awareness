@@ -1,16 +1,35 @@
 # AI-Based Multilingual Chatbot for Welfare Scheme Awareness
 
+## Project Overview
+
 This project is an AI-powered conversational chatbot designed to bridge the information gap for marginalized communities in India by providing multilingual access to government welfare schemes via WhatsApp. 
 
 It features a beautiful React-based Glassmorphism dashboard for pilot presentation and a robust FastAPI backend powered by LangChain, FAISS vector embeddings, and Gemini's state-of-the-art Flash models.
 
-## Features
+## Demo & Example Flows
+
+Here are some example conversation flows showing how the bot adapts to different user personas (e.g., Farmer, Woman Head of Household, Gig Worker) in various languages:
+
+![Example Chat Flows](assets/example_flow.png)
+
+## Key Features
 
 - **Multilingual Support**: Users can type in any language (Hindi, Bengali, Marathi, etc.), and the AI will automatically comprehend, retrieve data, and reply in the same language.
 - **WhatsApp Integration**: Operates natively on WhatsApp via the Twilio Sandbox.
 - **RAG Architecture**: Uses FAISS Vector Store and Google Generative AI embeddings (`models/gemini-embedding-2`) to accurately retrieve facts from `schemes_data.json` and prevent AI hallucinations.
 - **Fail-safe Translation**: Includes a translation wrapper that natively falls back to Gemini's built-in multilingual capabilities if the Bhashini API goes offline.
 - **Glassmorphism Dashboard**: A stunning, modern React frontend to showcase analytics and presentation details during hackathons/demos.
+
+## Submission Flow / Usage Guide
+
+For the purpose of evaluation and project submission, follow this structured flow to demonstrate the chatbot's capabilities:
+
+1. **Persona Selection**: Ask the evaluator to adopt a specific persona (e.g., 45-year-old Farmer from Maharashtra, 38-year-old Woman BPL from Tamil Nadu, or a 28-year-old Gig Worker from Delhi).
+2. **Initial Query**: Initiate the conversation on WhatsApp by stating the persona's problem in their native language or code-mixed language (e.g., "delivery job karta hoon, loan chahiye urgent").
+3. **Automated Interview**: The chatbot will dynamically ask 4-5 contextual questions (age, occupation, income/status, state) to gather necessary eligibility criteria.
+4. **RAG-Powered Retrieval**: Once the profile is built, the bot queries the FAISS vector database to retrieve the most relevant government schemes.
+5. **Scheme Recommendation**: The bot responds with tailored scheme recommendations, explaining the benefits and application process in the user's chosen language.
+6. **Dashboard Presentation**: Concurrently, showcase the React frontend dashboard to the evaluators to display real-time analytics, user insights, and the technical architecture backing the chatbot.
 
 ## Project Structure
 
