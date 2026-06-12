@@ -5,9 +5,37 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from translation import translator
 import os
+import re
 import markdown
 
 app = FastAPI(title="Welfare Scheme Chatbot API", version="1.0.0")
+
+# SMS constraint constants
+SMS_MAX_CHARS = 300
+_URL_PATTERN = re.compile(r'https?://\S+')
+
+def sanitize_sms_reply(text: str) -> str:
+    """
+    Hard-enforces the two SMS fallback constraints:
+    1. Strips any URL / hyperlink from the reply (basic keypad phones cannot
+       tap links, and they bloat the character count).
+    2. Truncates the total reply to SMS_MAX_CHARS characters to guarantee a
+       single-part SMS and prevent unexpected billing for multi-part messages.
+    
+    This is a *code-level* guarantee, not merely a prompt instruction.
+    """
+    # 1. Strip URLs
+    sanitized = _URL_PATTERN.sub('', text).strip()
+    # Collapse any double whitespace / newlines left behind after URL removal
+    sanitized = re.sub(r' {2,}', ' ', sanitized)
+    sanitized = re.sub(r'\n{3,}', '\n\n', sanitized)
+
+    # 2. Truncate to hard character limit
+    if len(sanitized) > SMS_MAX_CHARS:
+        # Truncate and append an ellipsis so the user knows there's more
+        sanitized = sanitized[:SMS_MAX_CHARS - 1].rstrip() + '…'
+
+    return sanitized
 
 # Initialize the Gemini Chat model for conversational reasoning
 llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", temperature=0.3)
@@ -59,7 +87,7 @@ def handle_retrieval(profile_summary: str, user_query: str, user_lang: str, is_s
 
     sms_instruction = ""
     if is_sms:
-        sms_instruction = "\nCRITICAL: The user is on a basic SMS keypad phone. Your response MUST be extremely punchy, highly concise, and under 300 characters to prevent expensive multi-part SMS splitting. Keep checklists very brief."
+        sms_instruction = "\nCRITICAL: The user is on a basic SMS keypad phone. Your response MUST be extremely punchy, highly concise, and under 300 characters to prevent expensive multi-part SMS splitting. Keep checklists very brief. You MUST NOT include any web links or URLs."
 
     prompt = f"""
     You are a helpful welfare scheme assistant for the Indian government.
@@ -162,6 +190,16 @@ async def process_chat(request: Request, is_sms: bool):
                 
                 link_text = translator.translate_from_english("\n\n📄 Download this checklist: ", user_lang)
                 reply_text += f"{link_text}{download_url}"
+
+        # --- SMS Hard Enforcement (code-level guarantee) ---
+        # Runs AFTER translation so char-count is accurate for the final language.
+        # Also runs AFTER the checklist URL is appended for WhatsApp (is_sms=False)
+        # so it only strips/truncates on the SMS path.
+        if is_sms:
+            original_len = len(reply_text)
+            reply_text = sanitize_sms_reply(reply_text)
+            if len(reply_text) < original_len:
+                print(f"[SMS Sanitizer] Reply trimmed: {original_len} → {len(reply_text)} chars")
     except Exception as e:
         print(f"Error processing webhook: {e}")
         reply_text = "The system is currently busy or we hit an API rate limit. Please wait 30 seconds and try again."
